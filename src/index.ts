@@ -4,6 +4,7 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { z } from "zod";
 import { config } from "dotenv";
 import { N8nClient } from "./n8n-client.js";
+import { buildUserManagementWorkflow } from "./workflows/user-management.js";
 
 config();
 
@@ -207,6 +208,42 @@ server.tool(
   async ({ id, role }) => {
     const result = await client.changeUserRole(id, role);
     return { content: [{ type: "text", text: `✅ User ${id} role updated to ${role}.\n\n${JSON.stringify(result, null, 2)}` }] };
+  }
+);
+
+// ─── Automation Deployment ────────────────────────────────────────────────────
+
+server.tool(
+  "deploy_user_automation",
+  "Deploy the User Management Automation workflow to n8n. Creates webhook endpoints for adding, deleting and listing users.",
+  {},
+  async () => {
+    const workflow = buildUserManagementWorkflow(N8N_BASE_URL!, N8N_API_KEY!);
+    const created = await client.createWorkflow(workflow as Record<string, unknown>);
+    const base = N8N_BASE_URL!.replace(/\/$/, "");
+    return {
+      content: [
+        {
+          type: "text",
+          text: [
+            `✅ Workflow deployed! ID: ${created.id}`,
+            ``,
+            `Webhook Endpoints:`,
+            ``,
+            `  ➕ Add user:`,
+            `     POST ${base}/webhook/user-management/add`,
+            `     Body: { "email": "user@example.com", "role": "global:member" }`,
+            ``,
+            `  🗑 Delete user:`,
+            `     POST ${base}/webhook/user-management/delete`,
+            `     Body: { "id": "<user-id>" }`,
+            ``,
+            `  📋 List users:`,
+            `     GET ${base}/webhook/user-management/list`,
+          ].join("\n"),
+        },
+      ],
+    };
   }
 );
 

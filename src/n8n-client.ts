@@ -126,4 +126,9 @@ export class N8nClient {
     const res = await this.http.patch(`/users/${id}/role`, { newRoleName: role });
     return res.data;
   }
+
+  async createWorkflow(workflow: Record<string, unknown>): Promise<Workflow> {
+    const res = await this.http.post("/workflows", workflow);
+    return res.data;
+  }
 }
