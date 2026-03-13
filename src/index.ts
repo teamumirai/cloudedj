@@ -5,6 +5,7 @@ import { z } from "zod";
 import { config } from "dotenv";
 import { N8nClient } from "./n8n-client.js";
 import { buildUserManagementWorkflow } from "./workflows/user-management.js";
+import { buildUserInviteFormWorkflow } from "./workflows/user-invite-form.js";
 
 config();
 
@@ -240,6 +241,33 @@ server.tool(
             ``,
             `  📋 List users:`,
             `     GET ${base}/webhook/user-management/list`,
+          ].join("\n"),
+        },
+      ],
+    };
+  }
+);
+
+server.tool(
+  "deploy_invite_form",
+  "Deploy a public web form to n8n. Users fill in Name + Email + Role and get an invite link sent to them automatically.",
+  {},
+  async () => {
+    const workflow = buildUserInviteFormWorkflow(N8N_BASE_URL!, N8N_API_KEY!);
+    const created = await client.createWorkflow(workflow as Record<string, unknown>);
+    const base = N8N_BASE_URL!.replace(/\/$/, "");
+    return {
+      content: [
+        {
+          type: "text",
+          text: [
+            `✅ Invite Form deployed! Workflow ID: ${created.id}`,
+            ``,
+            `🔗 Public Form URL:`,
+            `   ${base}/form/user-invite-form`,
+            ``,
+            `Share this link with anyone who needs to add users.`,
+            `They fill in Name, Email, Role → invite email is sent automatically.`,
           ].join("\n"),
         },
       ],
