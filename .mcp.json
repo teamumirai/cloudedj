@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "n8n": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["tsx", "src/index.ts"],
+      "cwd": ".",
+      "env": {
+        "N8N_BASE_URL": "https://n8n.umirai.ai",
+        "N8N_API_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJiYzYzZjY3Yi1jN2U1LTQ1MjgtOTFmOS1hZmRkZDZlMDliNzQiLCJpc3MiOiJuOG4iLCJhdWQiOiJwdWJsaWMtYXBpIiwiaWF0IjoxNzczMzgyNDQ2fQ.Cx1_btcbVBRrRrdca3M7VoVbeL0LgLTyqYUSiAM4nVA"
+      }
+    }
+  }
+}
