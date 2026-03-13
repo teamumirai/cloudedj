@@ -107,4 +107,23 @@ export class N8nClient {
     const res = await this.http.get("/variables");
     return res.data;
   }
+
+  async listUsers(): Promise<{ data: { id: string; email: string; firstName: string; lastName: string; role: string }[] }> {
+    const res = await this.http.get("/users");
+    return res.data;
+  }
+
+  async inviteUsers(users: { email: string; role: string }[]): Promise<unknown> {
+    const res = await this.http.post("/users", users);
+    return res.data;
+  }
+
+  async deleteUser(id: string): Promise<void> {
+    await this.http.delete(`/users/${id}`);
+  }
+
+  async changeUserRole(id: string, role: string): Promise<unknown> {
+    const res = await this.http.patch(`/users/${id}/role`, { newRoleName: role });
+    return res.data;
+  }
 }

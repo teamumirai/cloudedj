@@ -162,6 +162,54 @@ server.tool(
   }
 );
 
+// ─── User Tools ───────────────────────────────────────────────────────────────
+
+server.tool(
+  "list_users",
+  "List all users in n8n",
+  {},
+  async () => {
+    const result = await client.listUsers();
+    return { content: [{ type: "text", text: JSON.stringify(result.data, null, 2) }] };
+  }
+);
+
+server.tool(
+  "invite_user",
+  "Invite a new user to n8n by email",
+  {
+    email: z.string().email().describe("Email address of the new user"),
+    role: z.enum(["global:member", "global:admin"]).default("global:member").describe("Role to assign"),
+  },
+  async ({ email, role }) => {
+    const result = await client.inviteUsers([{ email, role }]);
+    return { content: [{ type: "text", text: `✅ Invitation sent to ${email} as ${role}.\n\n${JSON.stringify(result, null, 2)}` }] };
+  }
+);
+
+server.tool(
+  "delete_user",
+  "Remove a user from n8n",
+  { id: z.string().describe("User ID") },
+  async ({ id }) => {
+    await client.deleteUser(id);
+    return { content: [{ type: "text", text: `🗑 User ${id} removed.` }] };
+  }
+);
+
+server.tool(
+  "change_user_role",
+  "Change the role of an existing user",
+  {
+    id: z.string().describe("User ID"),
+    role: z.enum(["global:member", "global:admin"]).describe("New role"),
+  },
+  async ({ id, role }) => {
+    const result = await client.changeUserRole(id, role);
+    return { content: [{ type: "text", text: `✅ User ${id} role updated to ${role}.\n\n${JSON.stringify(result, null, 2)}` }] };
+  }
+);
+
 // ─── Start ────────────────────────────────────────────────────────────────────
 
 const transport = new StdioServerTransport();
