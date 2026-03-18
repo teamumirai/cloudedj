@@ -6,6 +6,7 @@ import { config } from "dotenv";
 import { N8nClient } from "./n8n-client.js";
 import { buildUserManagementWorkflow } from "./workflows/user-management.js";
 import { buildUserInviteFormWorkflow } from "./workflows/user-invite-form.js";
+import { buildFormToGoogleSheetsWorkflow } from "./workflows/form-to-google-sheets.js";
 
 config();
 
@@ -268,6 +269,37 @@ server.tool(
             ``,
             `Share this link with anyone who needs to add users.`,
             `They fill in Name, Email, Role → invite email is sent automatically.`,
+          ].join("\n"),
+        },
+      ],
+    };
+  }
+);
+
+server.tool(
+  "deploy_form_to_sheets",
+  "Deploy a public web form to n8n that saves submissions to Google Sheets. Fields: Full Name, Email Address, Message.",
+  {},
+  async () => {
+    const workflow = buildFormToGoogleSheetsWorkflow();
+    const created = await client.createWorkflow(workflow as Record<string, unknown>);
+    const base = N8N_BASE_URL!.replace(/\/$/, "");
+    return {
+      content: [
+        {
+          type: "text",
+          text: [
+            `✅ Form to Google Sheets workflow deployed! Workflow ID: ${created.id}`,
+            ``,
+            `🔗 Public Form URL:`,
+            `   ${base}/form/form-to-google-sheets`,
+            ``,
+            `⚠️  Next steps to connect Google Sheets:`,
+            `   1. Open workflow: ${base}/workflow/${created.id}`,
+            `   2. Click the Google Sheets node`,
+            `   3. Connect your Google Sheets credential`,
+            `   4. Set your Spreadsheet ID`,
+            `   5. Save & activate the workflow`,
           ].join("\n"),
         },
       ],
